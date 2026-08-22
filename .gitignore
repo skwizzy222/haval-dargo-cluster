@@ -1,0 +1,5 @@
+node_modules/
+preview-full.png
+ref.png
+assets/
+.playwright/

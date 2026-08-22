@@ -1,0 +1,8 @@
+{
+  "name": "haval-dargo-cluster",
+  "private": true,
+  "description": "Pixel recreation of the Haval Dargo 10.25 digital instrument cluster",
+  "scripts": {
+    "start": "npx --yes serve . -p 4173"
+  }
+}

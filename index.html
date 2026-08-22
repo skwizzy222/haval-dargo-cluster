@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Haval Dargo — приборная панель</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Roboto+Condensed:wght@400;500;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="css/cluster.css" />
+</head>
+<body>
+  <div id="viewport">
+    <div class="cluster" id="cluster">
+      <svg class="defs" width="0" height="0" aria-hidden="true">
+        <defs>
+          <linearGradient id="chromeV" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#f3f7ff" />
+            <stop offset="18%" stop-color="#8ea4bc" />
+            <stop offset="42%" stop-color="#eaf2ff" />
+            <stop offset="58%" stop-color="#6d7f93" />
+            <stop offset="78%" stop-color="#d5e3f4" />
+            <stop offset="100%" stop-color="#9aafc4" />
+          </linearGradient>
+          <linearGradient id="chromeH" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#c5d4e6" />
+            <stop offset="25%" stop-color="#f6fbff" />
+            <stop offset="50%" stop-color="#7f93a8" />
+            <stop offset="75%" stop-color="#e4eef8" />
+            <stop offset="100%" stop-color="#a9bdd0" />
+          </linearGradient>
+          <radialGradient id="well" cx="50%" cy="42%" r="62%">
+            <stop offset="0%" stop-color="#14181e" />
+            <stop offset="55%" stop-color="#07090c" />
+            <stop offset="100%" stop-color="#000" />
+          </radialGradient>
+          <filter id="cyanGlow" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation="2.2" result="b" />
+            <feMerge>
+              <feMergeNode in="b" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3.4" result="b" />
+            <feMerge>
+              <feMergeNode in="b" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          <filter id="mapShadow">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
+            <feOffset dy="1" />
+            <feComponentTransfer>
+              <feFuncA type="linear" slope="0.6" />
+            </feComponentTransfer>
+            <feMerge>
+              <feMergeNode />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+      </svg>
+
+      <div class="clock">16:30</div>
+      <div class="outside">17°C</div>
+
+      <!-- LEFT GAUGE: navigation + coolant -->
+      <section class="gauge gauge-left">
+        <svg class="gauge-frame" viewBox="0 0 600 600">
+          <circle cx="300" cy="300" r="286" fill="url(#well)" />
+          <circle cx="300" cy="300" r="292" fill="none" stroke="url(#chromeH)" stroke-width="11" />
+          <circle cx="300" cy="300" r="281" fill="none" stroke="url(#chromeV)" stroke-width="2.2" opacity="0.85" />
+          <circle cx="300" cy="300" r="270" fill="none" stroke="#9fd4ff" stroke-width="1.6" filter="url(#cyanGlow)" opacity="0.9" />
+          <g id="coolant-arc"></g>
+        </svg>
+        <div class="map-clip">
+          <svg class="nav-map" viewBox="0 0 400 400" id="nav-map"></svg>
+        </div>
+      </section>
+
+      <!-- CENTER -->
+      <section class="center-stack">
+        <div class="speed-block">
+          <div class="speed-ring">
+            <div class="speed-value">0</div>
+            <div class="speed-unit">km/h</div>
+          </div>
+          <div class="limit-sign" aria-label="Ограничение скорости">
+            <span></span>
+          </div>
+        </div>
+
+        <div class="trip">
+          <h1>РАСХОД ТОПЛИВА А</h1>
+          <div class="trip-bar">
+            <span class="bar-min">0</span>
+            <svg class="bar-track" viewBox="0 0 280 18" preserveAspectRatio="none">
+              <line x1="0" y1="12" x2="280" y2="12" stroke="#3a3d42" stroke-width="2" />
+              <g id="cons-ticks"></g>
+              <rect id="cons-fill" x="0" y="8" width="12" height="8" rx="1" fill="#d8dde3" />
+            </svg>
+            <span class="bar-max">30</span>
+          </div>
+          <div class="trip-row">
+            <span class="k">Средн.</span>
+            <span class="vu"><span class="v dim">---.-</span> <span class="u">L/100km</span></span>
+          </div>
+          <div class="trip-row">
+            <span class="k">Мгнов.</span>
+            <span class="vu"><span class="v">1.2</span> <span class="u">L/h</span></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT GAUGE: speedo + TPMS + fuel -->
+      <section class="gauge gauge-right">
+        <svg class="gauge-frame" viewBox="0 0 600 600">
+          <circle cx="300" cy="300" r="286" fill="url(#well)" />
+          <circle cx="300" cy="300" r="292" fill="none" stroke="url(#chromeH)" stroke-width="11" />
+          <circle cx="300" cy="300" r="281" fill="none" stroke="url(#chromeV)" stroke-width="2.2" opacity="0.85" />
+          <circle cx="300" cy="300" r="258" fill="none" stroke="#9fd4ff" stroke-width="1.55" filter="url(#cyanGlow)" opacity="0.95" />
+          <g id="speed-ticks"></g>
+          <g id="fuel-arc"></g>
+          <g id="speed-needle"></g>
+        </svg>
+        <div class="tpms">
+          <div class="tpms-title">TPMS</div>
+          <div class="tpms-grid">
+            <div class="tire fl">
+              <b>222 kPa</b>
+              <span>20°C</span>
+            </div>
+            <div class="tire fr">
+              <b>226 kPa</b>
+              <span>24°C</span>
+            </div>
+            <svg class="car-top" viewBox="0 0 120 220">
+              <g fill="none" stroke="#f2f4f6" stroke-linejoin="round" stroke-linecap="round">
+                <path stroke-width="2.2" d="M38 28
+                  C40 14 80 14 82 28
+                  L92 52
+                  C98 62 102 78 102 96
+                  L102 148
+                  C102 168 98 184 90 196
+                  L78 208
+                  C70 214 50 214 42 208
+                  L30 196
+                  C22 184 18 168 18 148
+                  L18 96
+                  C18 78 22 62 28 52 Z" />
+                <path stroke-width="1.4" d="M44 36 C50 26 70 26 76 36 L84 54 C86 60 86 68 86 76 L34 76 C34 68 34 60 36 54 Z" />
+                <rect x="40" y="88" width="40" height="52" rx="6" stroke-width="1.3" />
+                <path stroke-width="1.3" d="M40 148 h40 v22 c0 8-8 14-20 14s-20-6-20-14z" />
+                <path stroke-width="1.5" d="M18 92 h-10 v28 h10" />
+                <path stroke-width="1.5" d="M102 92 h10 v28 h-10" />
+                <path stroke-width="1.6" d="M26 70 v22" />
+                <path stroke-width="1.6" d="M94 70 v22" />
+                <path stroke-width="1.6" d="M26 150 v22" />
+                <path stroke-width="1.6" d="M94 150 v22" />
+                <circle cx="60" cy="58" r="3.2" fill="#f2f4f6" stroke="none" />
+              </g>
+            </svg>
+            <div class="tire rl">
+              <b>214 kPa</b>
+              <span>13°C</span>
+            </div>
+            <div class="tire rr">
+              <b>218 kPa</b>
+              <span>15°C</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- BOTTOM BAR -->
+      <div class="odo">20006 km</div>
+      <div class="gear">P</div>
+      <div class="bottom-icons">
+        <svg class="warn-tri" viewBox="0 0 24 24" width="28" height="28">
+          <path fill="#e31b23" d="M12 2.4 22.6 21.2H1.4L12 2.4z" />
+          <path fill="#fff" d="M11.1 9.2h1.8v6.2h-1.8zM11.1 16.8h1.8V18.6h-1.8z" />
+        </svg>
+        <svg class="lane-icon" viewBox="0 0 32 32" width="32" height="32">
+          <path fill="none" stroke="#f0f2f4" stroke-width="1.8" stroke-linecap="round"
+            d="M7 6c2 6 2 14 0 20M25 6c-2 6-2 14 0 20" />
+          <path fill="#f0f2f4" d="M12.2 10.2h7.6l1.6 4.2v7.2l-1.4 2.2h-8l-1.4-2.2v-7.2z" opacity=".95" />
+          <path fill="#111" d="M13.6 12h4.8l.9 2.4v2.2h-6.6v-2.2z" opacity=".35" />
+        </svg>
+      </div>
+
+      <!-- TELLTALES -->
+      <div class="telltale epb" title="Стояночный тормоз">
+        <svg viewBox="0 0 36 36" width="34" height="34">
+          <circle cx="18" cy="18" r="15.4" fill="#c4161c" />
+          <text x="18" y="23.6" text-anchor="middle" fill="#fff" font-size="16" font-family="Roboto, sans-serif" font-weight="700">P</text>
+        </svg>
+      </div>
+      <div class="telltale seatbelt" title="Ремень">
+        <svg viewBox="0 0 36 36" width="34" height="34">
+          <circle cx="18" cy="7.4" r="4.1" fill="#e31b23" />
+          <path fill="#e31b23" d="M11 15.4c1.8-1.6 3.4-2.2 7-2.2s5.2.6 7 2.2v4.6c-2.2-1.4-4.4-2-7-2s-4.8.6-7 2z" />
+          <path fill="none" stroke="#e31b23" stroke-width="2.5" stroke-linecap="round" d="M10 27.8 26.5 13.2" />
+          <path fill="#e31b23" d="M9.2 22.2h5.6v2.4H9.2z" />
+          <circle cx="25.6" cy="14.2" r="1.6" fill="#e31b23" />
+        </svg>
+      </div>
+      <div class="telltale adas">
+        <svg viewBox="0 0 32 32" width="28" height="28">
+          <path fill="none" stroke="#21c85a" stroke-width="2.1" stroke-linecap="round" stroke-dasharray="5 3"
+            d="M6.5 5.5c2.2 6.4 2.2 14.6 0 21M25.5 5.5c-2.2 6.4-2.2 14.6 0 21" />
+          <path fill="#21c85a" d="M12 10.2h8l1.7 3.8v7.4l-1.5 2.4h-8.4L10.3 21.4v-7.4z" />
+        </svg>
+        <svg viewBox="0 0 32 32" width="28" height="28">
+          <path fill="#21c85a" d="M12.2 8.5h7.6l1.6 3.5v7.6l-1.4 2.2h-8l-1.4-2.2V12z" />
+          <path fill="none" stroke="#21c85a" stroke-width="1.8" stroke-linecap="round"
+            d="M8 22.8c2.6-1.6 13.4-1.6 16 0M6.2 19.4c3.4-2.2 16.2-2.2 19.6 0" />
+        </svg>
+      </div>
+    </div>
+  </div>
+  <script src="js/cluster.js"></script>
+</body>
+</html>
