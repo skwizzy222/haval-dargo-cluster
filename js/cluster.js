@@ -36,7 +36,7 @@ function drawSpeedTicks() {
   }
   const n0 = speedDeg(0);
   const [nx, ny] = degToPos(n0, 270);
-  html += `<circle cx="${nx.toFixed(2)}" cy="${ny.toFixed(2)}" r="3.2" fill="#f7fbff" filter="url(#softGlow)" />`;
+  html += `<circle cx="${nx.toFixed(2)}" cy="${ny.toFixed(2)}" r="3.2" fill="#f7fbff" filter="url(#softGlow)" opacity="0.35" />`;
   g.innerHTML = html;
 }
 
@@ -227,6 +227,114 @@ function fitCluster() {
   cluster.style.transform = `scale(${s})`;
 }
 
+const car = {
+  speed: 0,
+  throttle: false,
+  fuelKg: 55,
+  tripKm: 0,
+  tripLiters: 0,
+};
+
+function instantEconomy() {
+  if (car.speed < 0.8) {
+    const lph = car.throttle ? 2.8 : 1.2;
+    return { value: lph, unit: "L/h", l100: lph * 2.2 };
+  }
+  const load = car.throttle ? 1 : 0.35;
+  const l100 = 6.4 + load * (9.5 + car.speed * 0.035) + Math.max(0, 40 - car.speed) * 0.04;
+  return { value: l100, unit: "L/100km", l100 };
+}
+
+function renderDrive() {
+  const kmh = Math.round(car.speed);
+  const speedEl = document.getElementById("speed-value");
+  if (speedEl) {
+    speedEl.textContent = String(kmh);
+    speedEl.style.fontSize = kmh >= 100 ? "86px" : "108px";
+  }
+
+  const eco = instantEconomy();
+  const inst = document.getElementById("inst-value");
+  const unit = document.getElementById("inst-unit");
+  if (inst) inst.textContent = eco.unit === "L/h" ? eco.value.toFixed(1) : eco.value.toFixed(1);
+  if (unit) unit.textContent = eco.unit;
+
+  const fill = document.getElementById("cons-fill");
+  if (fill) {
+    const w = Math.max(6, Math.min(280, (eco.l100 / 30) * 280));
+    fill.setAttribute("width", w.toFixed(1));
+  }
+
+  const avg = document.getElementById("avg-value");
+  if (avg) {
+    if (car.tripKm < 0.3) {
+      avg.textContent = "---.-";
+      avg.classList.add("dim");
+    } else {
+      avg.textContent = ((car.tripLiters / car.tripKm) * 100).toFixed(1);
+      avg.classList.remove("dim");
+    }
+  }
+
+  const gear = document.getElementById("gear");
+  if (gear) gear.textContent = car.speed > 0.4 || car.throttle ? "D" : "P";
+
+  const needle = document.getElementById("speed-needle");
+  if (needle) {
+    const d = speedDeg(Math.min(240, car.speed));
+    const [nx, ny] = degToPos(d, 270);
+    let html = "";
+    if (car.speed > 0.4) {
+      html += `<path d="${arcPath(SPEED_START, d, 258)}" fill="none" stroke="#9fd4ff" stroke-width="3.2" filter="url(#cyanGlow)" />`;
+    }
+    html += `<circle cx="${nx.toFixed(2)}" cy="${ny.toFixed(2)}" r="4.2" fill="#f7fbff" filter="url(#softGlow)" />`;
+    needle.innerHTML = html;
+  }
+}
+
+let lastTs = 0;
+function tick(ts) {
+  if (!lastTs) lastTs = ts;
+  const dt = Math.min(0.05, (ts - lastTs) / 1000);
+  lastTs = ts;
+
+  if (car.throttle) {
+    const accel = car.speed < 70 ? 26 : car.speed < 130 ? 14 : 7;
+    car.speed = Math.min(240, car.speed + accel * dt);
+  } else {
+    const drag = 3.2 + car.speed * 0.085;
+    car.speed = Math.max(0, car.speed - drag * dt);
+  }
+
+  const eco = instantEconomy();
+  const kmDelta = (car.speed / 3600) * dt;
+  car.tripKm += kmDelta;
+  if (eco.unit === "L/h") car.tripLiters += (eco.value / 3600) * dt;
+  else car.tripLiters += (eco.l100 / 100) * kmDelta;
+
+  renderDrive();
+  requestAnimationFrame(tick);
+}
+
+function isAccelKey(e) {
+  return e.code === "KeyW" || e.code === "ArrowUp";
+}
+
+window.addEventListener("keydown", (e) => {
+  if (!isAccelKey(e) || e.repeat) return;
+  e.preventDefault();
+  car.throttle = true;
+});
+
+window.addEventListener("keyup", (e) => {
+  if (!isAccelKey(e)) return;
+  car.throttle = false;
+});
+
+window.addEventListener("blur", () => {
+  car.throttle = false;
+});
+
 window.addEventListener("resize", fitCluster);
 document.addEventListener("DOMContentLoaded", () => {
   drawSpeedTicks();
@@ -234,4 +342,6 @@ document.addEventListener("DOMContentLoaded", () => {
   drawConsTicks();
   drawMap();
   fitCluster();
+  renderDrive();
+  requestAnimationFrame(tick);
 });

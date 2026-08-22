@@ -86,12 +86,10 @@
       <section class="center-stack">
         <div class="speed-block">
           <div class="speed-ring">
-            <div class="speed-value">0</div>
+            <div class="speed-value" id="speed-value">0</div>
             <div class="speed-unit">km/h</div>
           </div>
-          <div class="limit-sign" aria-label="Ограничение скорости">
-            <span></span>
-          </div>
+          <div class="limit-sign" aria-label="Ограничение скорости"></div>
         </div>
 
         <div class="trip">
@@ -107,11 +105,11 @@
           </div>
           <div class="trip-row">
             <span class="k">Средн.</span>
-            <span class="vu"><span class="v dim">---.-</span> <span class="u">L/100km</span></span>
+            <span class="vu"><span class="v dim" id="avg-value">---.-</span> <span class="u">L/100km</span></span>
           </div>
           <div class="trip-row">
             <span class="k">Мгнов.</span>
-            <span class="vu"><span class="v">1.2</span> <span class="u">L/h</span></span>
+            <span class="vu"><span class="v" id="inst-value">1.2</span> <span class="u" id="inst-unit">L/h</span></span>
           </div>
         </div>
       </section>
@@ -178,7 +176,7 @@
 
       <!-- BOTTOM BAR -->
       <div class="odo">20006 km</div>
-      <div class="gear">P</div>
+      <div class="gear" id="gear">P</div>
       <div class="bottom-icons">
         <svg class="warn-tri" viewBox="0 0 24 24" width="28" height="28">
           <path fill="#e31b23" d="M12 2.4 22.6 21.2H1.4L12 2.4z" />
