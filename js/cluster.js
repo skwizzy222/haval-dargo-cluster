@@ -184,8 +184,8 @@ function drawMap() {
         C308 32 338 18 372 22"
         fill="none" stroke="url(#route)" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#routeGlow)" />
       <!-- labels -->
-      <text x="92" y="172" fill="#e8eaed" font-size="9" font-family="Roboto, sans-serif" letter-spacing="0.4">просп. Авиаконструкторов</text>
-      <text x="256" y="318" fill="#c5c9ce" font-size="8" font-family="Roboto, sans-serif">ул. Ильюшина</text>
+      <text x="92" y="172" fill="#e8eaed" font-size="9" font-family="Jura, sans-serif" font-weight="500" letter-spacing="0.6">просп. Авиаконструкторов</text>
+      <text x="256" y="318" fill="#c5c9ce" font-size="8" font-family="Jura, sans-serif">ул. Ильюшина</text>
       <!-- arrow at car position -->
       <g transform="translate(198 150) rotate(-28)">
         <polygon points="0,-16 12,12 0,6 -12,12" fill="#ffcc22" stroke="#c48a00" stroke-width="1" />
