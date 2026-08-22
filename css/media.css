@@ -1,0 +1,261 @@
+/* 12.3" GWM / Haval Dargo head unit */
+.cockpit {
+  width: 1920px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  transform-origin: center center;
+}
+
+.help {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  justify-content: center;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  color: #8b929a;
+  padding: 4px 12px 8px;
+}
+
+.help b { color: #dce3ea; font-weight: 600; }
+
+.headunit {
+  width: 1920px;
+  height: 720px;
+  background: linear-gradient(180deg, #12161c 0%, #0a0c10 100%);
+  border-radius: 18px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 0 0 2px #1c222a, 0 12px 40px rgba(0, 0, 0, 0.55);
+  font-family: "Jura", sans-serif;
+  user-select: none;
+}
+
+.hu-bar {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  color: #eef2f5;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.hu-bar .mid { display: flex; gap: 14px; align-items: center; color: #9aa3ad; font-size: 16px; }
+.hu-bar .temp { color: #9fd4ff; }
+
+.hu-stage {
+  height: 572px;
+  padding: 8px 28px 0;
+  overflow: hidden;
+}
+
+.hu-dock {
+  height: 92px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 40px 8px;
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.35));
+}
+
+.dock-btn {
+  min-width: 88px;
+  height: 64px;
+  border: 0;
+  background: #1a2028;
+  color: #e8edf2;
+  border-radius: 16px;
+  font: 600 15px/1.2 "Jura", sans-serif;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+.dock-btn:hover { background: #24303c; }
+.dock-btn.active { background: #0e4a52; color: #7ef0f6; box-shadow: 0 0 0 1px #1ad4dc; }
+
+.apps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+  padding: 28px 48px;
+}
+
+.app {
+  height: 210px;
+  border: 0;
+  border-radius: 22px;
+  background: #1b222b;
+  color: #f2f5f8;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  font: 600 22px "Jura", sans-serif;
+  letter-spacing: 0.1em;
+}
+.app:hover { background: #24303c; }
+.app .ico { font-size: 48px; filter: grayscale(0.2); }
+
+.screen-title {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  margin: 6px 8px 18px;
+}
+
+.back {
+  border: 0;
+  background: #1a2028;
+  color: #fff;
+  border-radius: 12px;
+  padding: 10px 18px;
+  font: 600 16px "Jura", sans-serif;
+  cursor: pointer;
+  margin-right: 12px;
+}
+
+.row { display: flex; align-items: center; gap: 16px; }
+
+.now {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 32px;
+  padding: 12px 20px;
+}
+.vinyl {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: conic-gradient(#111 0 12%, #333 0 14%, #111 0 48%, #333 0 50%, #111 0 100%);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 0 0 8px #1c1c1c;
+}
+.vinyl i {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: #e6b325;
+  display: block;
+}
+.now h2 { font-size: 36px; letter-spacing: 0.04em; margin-bottom: 8px; }
+.now .art { color: #9aa3ad; font-size: 22px; margin-bottom: 28px; }
+.prog { height: 6px; background: #2a313a; border-radius: 4px; overflow: hidden; }
+.prog > span { display: block; height: 100%; background: linear-gradient(90deg, #1ad4dc, #7ef0f6); }
+.times { display: flex; justify-content: space-between; margin-top: 8px; color: #8b929a; }
+.media-btns { display: flex; gap: 14px; margin-top: 22px; }
+.media-btns button, .pill, .clim button, .stn, .contact, .set-row {
+  border: 0;
+  background: #1a2028;
+  color: #eef2f5;
+  border-radius: 14px;
+  padding: 14px 22px;
+  font: 600 18px "Jura", sans-serif;
+  cursor: pointer;
+}
+.media-btns button.play { background: #1ad4dc; color: #051416; min-width: 88px; }
+
+.stations { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.stn.active, .contact:hover, .set-row:hover { background: #0e4a52; color: #7ef0f6; }
+
+.clim {
+  display: grid;
+  grid-template-columns: 1fr 220px 1fr;
+  gap: 18px;
+  align-items: center;
+  height: 460px;
+}
+.zone { text-align: center; }
+.zone .deg { font-size: 88px; font-weight: 600; letter-spacing: -0.04em; }
+.zone button { margin: 8px; font-size: 28px; min-width: 64px; }
+.clim-mid { display: flex; flex-direction: column; gap: 12px; }
+.clim-mid button.on { background: #1ad4dc; color: #051416; }
+
+.cam {
+  height: 480px;
+  border-radius: 16px;
+  background:
+    linear-gradient(90deg, transparent 49.6%, #2ad15a44 49.6% 50.4%, transparent 50.4%),
+    linear-gradient(#0b1a12, #122018);
+  position: relative;
+  overflow: hidden;
+}
+.cam .car {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 90px;
+  height: 160px;
+  transform: translate(-50%, -50%);
+  border: 2px solid #eef2f5;
+  border-radius: 18px 18px 12px 12px;
+}
+.pdc-arc {
+  position: absolute;
+  left: 50%;
+  bottom: 18%;
+  width: 180px;
+  height: 70px;
+  margin-left: -90px;
+  border: 3px solid #2ad15a;
+  border-top: 0;
+  border-radius: 0 0 90px 90px;
+  opacity: 0.85;
+}
+
+.phone-list { display: flex; flex-direction: column; gap: 10px; max-width: 720px; }
+.contact { display: flex; justify-content: space-between; text-align: left; }
+.call-card {
+  margin-top: 40px;
+  text-align: center;
+}
+.call-card h2 { font-size: 40px; margin: 12px 0; }
+.call-card button { background: #c4161c; margin-top: 20px; }
+
+.set-row {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 860px;
+  margin-bottom: 10px;
+}
+.set-row .val { color: #7ef0f6; }
+
+.nav-big {
+  height: 500px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #12171d;
+  position: relative;
+}
+.nav-big svg { width: 100%; height: 100%; }
+.nav-overlay {
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
+  background: #141a22ee;
+  padding: 16px 20px;
+  border-radius: 14px;
+  min-width: 320px;
+}
+.nav-overlay b { font-size: 26px; }
+
+.vol-toast {
+  position: absolute;
+  right: 32px;
+  top: 70px;
+  background: #141a22ee;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.vol-toast.show { opacity: 1; }

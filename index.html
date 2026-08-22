@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Haval Dargo — приборная панель</title>
+  <title>Haval Dargo — щиток + мультимедиа</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -11,9 +11,11 @@
     rel="stylesheet"
   />
   <link rel="stylesheet" href="css/cluster.css" />
+  <link rel="stylesheet" href="css/media.css" />
 </head>
 <body>
   <div id="viewport">
+    <div class="cockpit" id="cockpit">
     <div class="cluster" id="cluster">
       <svg class="defs" width="0" height="0" aria-hidden="true">
         <defs>
@@ -65,8 +67,11 @@
         </defs>
       </svg>
 
-      <div class="clock">16:30</div>
-      <div class="outside">17°C</div>
+      <div class="clock" id="clock">16:30</div>
+      <div class="cluster-lights" id="cluster-lights"></div>
+      <div class="outside" id="outside">17°C</div>
+      <div class="sig sig-l" id="sig-l">◀</div>
+      <div class="sig sig-r" id="sig-r">▶</div>
 
       <!-- LEFT GAUGE: navigation + coolant -->
       <section class="gauge gauge-left">
@@ -77,9 +82,11 @@
           <circle cx="300" cy="300" r="270" fill="none" stroke="#9fd4ff" stroke-width="1.6" filter="url(#cyanGlow)" opacity="0.9" />
           <g id="coolant-arc"></g>
         </svg>
-        <div class="map-clip">
+        <div class="map-clip" id="left-nav">
           <svg class="nav-map" viewBox="0 0 400 400" id="nav-map"></svg>
         </div>
+        <div class="gauge-widget" id="left-media" hidden></div>
+        <div class="gauge-widget" id="left-cons" hidden></div>
       </section>
 
       <!-- CENTER -->
@@ -89,10 +96,10 @@
             <div class="speed-value" id="speed-value">0</div>
             <div class="speed-unit">km/h</div>
           </div>
-          <div class="limit-sign" aria-label="Ограничение скорости"></div>
+          <div class="limit-sign" id="limit-sign" aria-label="Ограничение скорости"></div>
         </div>
 
-        <div class="trip">
+        <div class="trip" id="center-cons">
           <h1>РАСХОД ТОПЛИВА А</h1>
           <div class="trip-bar">
             <span class="bar-min">0</span>
@@ -112,6 +119,8 @@
             <span class="vu"><span class="v" id="inst-value">1.2</span> <span class="u" id="inst-unit">L/h</span></span>
           </div>
         </div>
+        <div class="center-media" id="center-media" hidden></div>
+        <div class="center-trip" id="center-trip" hidden></div>
       </section>
 
       <!-- RIGHT GAUGE: speedo + TPMS + fuel -->
@@ -125,17 +134,11 @@
           <g id="fuel-arc"></g>
           <g id="speed-needle"></g>
         </svg>
-        <div class="tpms">
+        <div class="tpms" id="right-tpms">
           <div class="tpms-title">TPMS</div>
           <div class="tpms-grid">
-            <div class="tire fl">
-              <b>222 kPa</b>
-              <span>20°C</span>
-            </div>
-            <div class="tire fr">
-              <b>226 kPa</b>
-              <span>24°C</span>
-            </div>
+            <div class="tire fl"><b id="tp-fl">222 kPa</b><span id="tt-fl">20°C</span></div>
+            <div class="tire fr"><b id="tp-fr">226 kPa</b><span id="tt-fr">24°C</span></div>
             <svg class="car-top" viewBox="0 0 120 220">
               <g fill="none" stroke="#f2f4f6" stroke-linejoin="round" stroke-linecap="round">
                 <path stroke-width="2.2" d="M38 28
@@ -162,51 +165,49 @@
                 <circle cx="60" cy="58" r="3.2" fill="#f2f4f6" stroke="none" />
               </g>
             </svg>
-            <div class="tire rl">
-              <b>214 kPa</b>
-              <span>13°C</span>
-            </div>
-            <div class="tire rr">
-              <b>218 kPa</b>
-              <span>15°C</span>
-            </div>
+            <div class="tire rl"><b id="tp-rl">214 kPa</b><span id="tt-rl">13°C</span></div>
+            <div class="tire rr"><b id="tp-rr">218 kPa</b><span id="tt-rr">15°C</span></div>
           </div>
         </div>
+        <div class="gauge-widget" id="right-media" hidden></div>
+        <div class="gauge-widget" id="right-trip" hidden></div>
       </section>
 
       <!-- BOTTOM BAR -->
-      <div class="odo">20006 km</div>
-      <div class="gear" id="gear">P</div>
+      <div class="odo" id="odo">20006 km</div>
+      <div class="gear" id="gear" title="Передача">P</div>
+      <div class="mode-tag" id="mode-tag">NORMAL</div>
       <div class="bottom-icons">
-        <svg class="warn-tri" viewBox="0 0 24 24" width="28" height="28">
+        <svg class="warn-tri" id="warn-tri" viewBox="0 0 24 24" width="28" height="28">
           <path fill="#e31b23" d="M12 2.4 22.6 21.2H1.4L12 2.4z" />
           <path fill="#fff" d="M11.1 9.2h1.8v6.2h-1.8zM11.1 16.8h1.8V18.6h-1.8z" />
         </svg>
-        <svg class="lane-icon" viewBox="0 0 32 32" width="32" height="32">
+        <svg class="door-ico" id="door-ico" viewBox="0 0 32 32" width="30" height="30" hidden>
+          <path fill="#e31b23" d="M8 8h16v16H8z" opacity=".2"/>
+          <path fill="none" stroke="#e31b23" stroke-width="2" d="M10 8h12v18H10zM14 16h2"/>
+        </svg>
+        <svg class="lane-icon" id="lane-icon" viewBox="0 0 32 32" width="32" height="32">
           <path fill="none" stroke="#f0f2f4" stroke-width="1.8" stroke-linecap="round"
             d="M7 6c2 6 2 14 0 20M25 6c-2 6-2 14 0 20" />
           <path fill="#f0f2f4" d="M12.2 10.2h7.6l1.6 4.2v7.2l-1.4 2.2h-8l-1.4-2.2v-7.2z" opacity=".95" />
-          <path fill="#111" d="M13.6 12h4.8l.9 2.4v2.2h-6.6v-2.2z" opacity=".35" />
         </svg>
       </div>
 
-      <!-- TELLTALES -->
-      <div class="telltale epb" title="Стояночный тормоз">
+      <div class="telltale epb" id="epb" title="Стояночный тормоз">
         <svg viewBox="0 0 36 36" width="34" height="34">
           <circle cx="18" cy="18" r="15.4" fill="#c4161c" />
           <text x="18" y="23.6" text-anchor="middle" fill="#fff" font-size="16" font-family="Jura, sans-serif" font-weight="700">P</text>
         </svg>
       </div>
-      <div class="telltale seatbelt" title="Ремень">
+      <div class="telltale seatbelt" id="seatbelt" title="Ремень">
         <svg viewBox="0 0 36 36" width="34" height="34">
           <circle cx="18" cy="7.4" r="4.1" fill="#e31b23" />
           <path fill="#e31b23" d="M11 15.4c1.8-1.6 3.4-2.2 7-2.2s5.2.6 7 2.2v4.6c-2.2-1.4-4.4-2-7-2s-4.8.6-7 2z" />
           <path fill="none" stroke="#e31b23" stroke-width="2.5" stroke-linecap="round" d="M10 27.8 26.5 13.2" />
           <path fill="#e31b23" d="M9.2 22.2h5.6v2.4H9.2z" />
-          <circle cx="25.6" cy="14.2" r="1.6" fill="#e31b23" />
         </svg>
       </div>
-      <div class="telltale adas">
+      <div class="telltale adas" id="adas">
         <svg viewBox="0 0 32 32" width="28" height="28">
           <path fill="none" stroke="#21c85a" stroke-width="2.1" stroke-linecap="round" stroke-dasharray="5 3"
             d="M6.5 5.5c2.2 6.4 2.2 14.6 0 21M25.5 5.5c-2.2 6.4-2.2 14.6 0 21" />
@@ -215,11 +216,22 @@
         <svg viewBox="0 0 32 32" width="28" height="28">
           <path fill="#21c85a" d="M12.2 8.5h7.6l1.6 3.5v7.6l-1.4 2.2h-8l-1.4-2.2V12z" />
           <path fill="none" stroke="#21c85a" stroke-width="1.8" stroke-linecap="round"
-            d="M8 22.8c2.6-1.6 13.4-1.6 16 0M6.2 19.4c3.4-2.2 16.2-2.2 19.6 0" />
+            d="M8 22.8c2.6-1.6 13.4-1.6 16 0" />
         </svg>
       </div>
     </div>
+
+    <div class="headunit" id="headunit"></div>
+    <div class="help">
+      <span><b>W</b> газ</span><span><b>S</b> тормоз</span><span><b>A/D</b> поворот</span><span><b>Q</b> авария</span>
+      <span><b>1–4</b> P/R/N/D</span><span><b>Пробел</b> ручник</span><span><b>B</b> ремень</span>
+      <span><b>L</b> свет</span><span><b>F</b> ПТФ</span><span><b>M</b> режим</span><span><b>I</b> мотор</span>
+      <span><b>P</b> play</span><span><b>[ ]</b> виджеты</span><span><b>+/−</b> громкость</span>
+    </div>
+    </div>
   </div>
+  <script src="js/car.js"></script>
   <script src="js/cluster.js"></script>
+  <script src="js/media.js"></script>
 </body>
 </html>

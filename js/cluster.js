@@ -219,76 +219,183 @@ function cityBlocks() {
     .join("");
 }
 
-function fitCluster() {
-  const cluster = document.getElementById("cluster");
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-  const s = Math.min(vw / 1920, vh / 720);
-  cluster.style.transform = `scale(${s})`;
+function fitCockpit() {
+  const el = document.getElementById("cockpit");
+  if (!el) return;
+  const s = Math.min(window.innerWidth / 1920, window.innerHeight / 1520);
+  el.style.transform = `scale(${s})`;
 }
 
-const car = {
-  speed: 0,
-  throttle: false,
-  fuelKg: 55,
-  tripKm: 0,
-  tripLiters: 0,
-};
+function fmtClock() {
+  const d = new Date();
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
 
-function instantEconomy() {
-  if (car.speed < 0.8) {
-    const lph = car.throttle ? 2.8 : 1.2;
-    return { value: lph, unit: "L/h", l100: lph * 2.2 };
+function show(el, vis) {
+  if (!el) return;
+  el.hidden = !vis;
+}
+
+function mediaHTML() {
+  const tr = Car.track();
+  const t = Math.floor(Car.audio.t);
+  const src = Car.audio.source === "radio" ? Car.audio.stations[Car.audio.station] : null;
+  if (src) {
+    return `<div class="w-media"><div class="w-eq"></div><b>FM ${src.freq}</b><span>${src.name}</span></div>`;
   }
-  const load = car.throttle ? 1 : 0.35;
-  const l100 = 6.4 + load * (9.5 + car.speed * 0.035) + Math.max(0, 40 - car.speed) * 0.04;
-  return { value: l100, unit: "L/100km", l100 };
+  return `<div class="w-media"><div class="w-vinyl"></div><b>${tr.title}</b><span>${tr.artist}</span><small>${String(Math.floor(t / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}</small></div>`;
 }
 
-function renderDrive() {
-  const kmh = Math.round(car.speed);
+function tripHTML() {
+  const mm = Math.floor(Car.tripTime / 60);
+  const ss = Math.floor(Car.tripTime % 60);
+  const avg = Car.tripKm > 0.3 ? Math.round(Car.tripKm / (Car.tripTime / 3600) || 0) : 0;
+  return `<div class="w-trip"><div>TRIP A</div>
+    <div>⏱ ${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}</div>
+    <div>📍 ${Car.tripKm.toFixed(1)} km</div>
+    <div>AVG ${avg || "---"} km/h</div></div>`;
+}
+
+function consMiniHTML() {
+  const eco = Car.instant();
+  const avg = Car.tripKm < 0.3 ? "---.-" : ((Car.tripLiters / Car.tripKm) * 100).toFixed(1);
+  return `<div class="w-cons"><b>РАСХОД А</b><div>Средн. ${avg}</div><div>Мгнов. ${eco.value.toFixed(1)} ${eco.unit}</div></div>`;
+}
+
+let fuelDraw = 0;
+function renderCluster() {
+  const c = window.Car;
+  const kmh = Math.round(c.speed);
   const speedEl = document.getElementById("speed-value");
   if (speedEl) {
     speedEl.textContent = String(kmh);
     speedEl.style.fontSize = kmh >= 100 ? "86px" : "108px";
   }
 
-  const eco = instantEconomy();
+  const eco = c.instant();
   const inst = document.getElementById("inst-value");
   const unit = document.getElementById("inst-unit");
-  if (inst) inst.textContent = eco.unit === "L/h" ? eco.value.toFixed(1) : eco.value.toFixed(1);
+  if (inst) inst.textContent = eco.value.toFixed(1);
   if (unit) unit.textContent = eco.unit;
-
   const fill = document.getElementById("cons-fill");
-  if (fill) {
-    const w = Math.max(6, Math.min(280, (eco.l100 / 30) * 280));
-    fill.setAttribute("width", w.toFixed(1));
-  }
-
+  if (fill) fill.setAttribute("width", String(Math.max(6, Math.min(280, (eco.l100 / 30) * 280))));
   const avg = document.getElementById("avg-value");
   if (avg) {
-    if (car.tripKm < 0.3) {
-      avg.textContent = "---.-";
-      avg.classList.add("dim");
-    } else {
-      avg.textContent = ((car.tripLiters / car.tripKm) * 100).toFixed(1);
-      avg.classList.remove("dim");
-    }
+    if (c.tripKm < 0.3) { avg.textContent = "---.-"; avg.classList.add("dim"); }
+    else { avg.textContent = ((c.tripLiters / c.tripKm) * 100).toFixed(1); avg.classList.remove("dim"); }
   }
 
   const gear = document.getElementById("gear");
-  if (gear) gear.textContent = car.speed > 0.4 || car.throttle ? "D" : "P";
+  if (gear) gear.textContent = c.gear === "D" && c.speed > 1 ? "D1" : c.gear;
+  const odo = document.getElementById("odo");
+  if (odo) odo.textContent = `${Math.round(c.odo)} km`;
+  const clock = document.getElementById("clock");
+  if (clock) clock.textContent = fmtClock();
+  const outside = document.getElementById("outside");
+  if (outside) outside.textContent = `${c.outside}°C`;
+  const mode = document.getElementById("mode-tag");
+  if (mode) mode.textContent = c.mode;
+
+  const epb = document.getElementById("epb");
+  if (epb) epb.classList.toggle("off", !c.epb);
+  const sb = document.getElementById("seatbelt");
+  if (sb) sb.classList.toggle("off", c.seatbelt);
+  const lane = document.getElementById("lane-icon");
+  if (lane) lane.style.opacity = c.laneKeep ? "1" : "0.2";
+  const adas = document.getElementById("adas");
+  if (adas) adas.style.opacity = c.laneKeep || c.pdc ? "1" : "0.2";
+  const door = document.getElementById("door-ico");
+  if (door) door.hidden = !c.doorsOpen;
+  const warn = document.getElementById("warn-tri");
+  if (warn) warn.style.opacity = (!c.seatbelt || c.doorsOpen || !c.engine) ? "1" : "0";
+
+  const sl = document.getElementById("sig-l");
+  const sr = document.getElementById("sig-r");
+  if (sl) sl.classList.toggle("on", (c.signal.left || c.signal.hazard) && c.signal.on);
+  if (sr) sr.classList.toggle("on", (c.signal.right || c.signal.hazard) && c.signal.on);
+
+  const lights = document.getElementById("cluster-lights");
+  if (lights) {
+    lights.innerHTML = `${c.lights.head ? "<span class='lg'>◉</span>" : ""}${c.lights.fog ? "<span class='lg fog'>雾</span>" : ""}`;
+  }
+
+  const lim = document.getElementById("limit-sign");
+  if (lim) {
+    lim.textContent = c.limit ? String(c.limit) : "";
+    lim.classList.toggle("num", !!c.limit);
+  }
+
+  const tps = ["fl", "fr", "rl", "rr"];
+  tps.forEach((k, i) => {
+    const p = document.getElementById(`tp-${k}`);
+    const t = document.getElementById(`tt-${k}`);
+    if (p) p.textContent = `${Math.round(c.tpms[i].kpa)} kPa`;
+    if (t) t.textContent = `${Math.round(c.tpms[i].c)}°C`;
+  });
+
+  show(document.getElementById("left-nav"), c.widgets.left === 0);
+  show(document.getElementById("left-media"), c.widgets.left === 1);
+  show(document.getElementById("left-cons"), c.widgets.left === 2);
+  const lm = document.getElementById("left-media");
+  const lc = document.getElementById("left-cons");
+  if (lm && c.widgets.left === 1) lm.innerHTML = mediaHTML();
+  if (lc && c.widgets.left === 2) lc.innerHTML = consMiniHTML();
+
+  show(document.getElementById("right-tpms"), c.widgets.right === 0);
+  show(document.getElementById("right-media"), c.widgets.right === 1);
+  show(document.getElementById("right-trip"), c.widgets.right === 2);
+  const rm = document.getElementById("right-media");
+  const rt = document.getElementById("right-trip");
+  if (rm && c.widgets.right === 1) rm.innerHTML = mediaHTML();
+  if (rt && c.widgets.right === 2) rt.innerHTML = tripHTML();
+
+  show(document.getElementById("center-cons"), c.widgets.center === 0);
+  show(document.getElementById("center-media"), c.widgets.center === 1);
+  show(document.getElementById("center-trip"), c.widgets.center === 2);
+  const cm = document.getElementById("center-media");
+  const ct = document.getElementById("center-trip");
+  if (cm && c.widgets.center === 1) cm.innerHTML = mediaHTML();
+  if (ct && c.widgets.center === 2) ct.innerHTML = tripHTML();
 
   const needle = document.getElementById("speed-needle");
   if (needle) {
-    const d = speedDeg(Math.min(240, car.speed));
+    const d = speedDeg(Math.min(240, c.speed));
     const [nx, ny] = degToPos(d, 270);
     let html = "";
-    if (car.speed > 0.4) {
+    if (c.speed > 0.4) {
       html += `<path d="${arcPath(SPEED_START, d, 258)}" fill="none" stroke="#9fd4ff" stroke-width="3.2" filter="url(#cyanGlow)" />`;
     }
     html += `<circle cx="${nx.toFixed(2)}" cy="${ny.toFixed(2)}" r="4.2" fill="#f7fbff" filter="url(#softGlow)" />`;
     needle.innerHTML = html;
+  }
+
+  fuelDraw += 1;
+  if (fuelDraw % 8 === 1) {
+    const fuel = document.getElementById("fuel-arc");
+    const cool = document.getElementById("coolant-arc");
+    if (fuel) {
+      const [px, py] = degToPos(90, 242);
+      const [rx, ry] = degToPos(72, 236);
+      fuel.innerHTML =
+        drawSegmentedArc(fuel, 124, 56, 276, { filled: c.fuel, reserve: 0.14, segments: 26 }) +
+        polarText(128, 262, "E") + polarText(52, 262, "F") +
+        `<g transform="translate(${px.toFixed(1)} ${py.toFixed(1)})">
+          <path d="M-7 8 V-6.5 A2 2 0 0 1 -5-8.5 h7 A2 2 0 0 1 4-6.5 V8" fill="none" stroke="#fff" stroke-width="1.6"/>
+          <path d="M-8 8 h14" fill="none" stroke="#fff" stroke-width="1.6"/>
+          <rect x="-3.2" y="-5.2" width="5.2" height="3" rx="0.4" fill="#fff"/>
+        </g>` +
+        `<text class="gauge-label" x="${rx.toFixed(1)}" y="${ry.toFixed(1)}" text-anchor="start" dominant-baseline="middle">${c.range()} km</text>`;
+    }
+    if (cool) {
+      const [tx, ty] = degToPos(90, 242);
+      cool.innerHTML =
+        drawSegmentedArc(cool, 124, 56, 276, { filled: c.coolant, reserve: 0, redZone: 0.12, segments: 24 }) +
+        polarText(128, 262, "C") + polarText(52, 262, "H") +
+        `<g transform="translate(${tx.toFixed(1)} ${ty.toFixed(1)})" fill="none" stroke="#fff" stroke-width="1.6">
+          <path d="M-2.2 1.6 V-7.2 a2.2 2.2 0 0 1 4.4 0 V1.6 a3.4 3.4 0 1 1-4.4 0z"/>
+          <circle cx="0" cy="4.6" r="1.5" fill="#fff" stroke="none"/>
+        </g>`;
+    }
   }
 }
 
@@ -297,51 +404,39 @@ function tick(ts) {
   if (!lastTs) lastTs = ts;
   const dt = Math.min(0.05, (ts - lastTs) / 1000);
   lastTs = ts;
-
-  if (car.throttle) {
-    const accel = car.speed < 70 ? 26 : car.speed < 130 ? 14 : 7;
-    car.speed = Math.min(240, car.speed + accel * dt);
-  } else {
-    const drag = 3.2 + car.speed * 0.085;
-    car.speed = Math.max(0, car.speed - drag * dt);
-  }
-
-  const eco = instantEconomy();
-  const kmDelta = (car.speed / 3600) * dt;
-  car.tripKm += kmDelta;
-  if (eco.unit === "L/h") car.tripLiters += (eco.value / 3600) * dt;
-  else car.tripLiters += (eco.l100 / 100) * kmDelta;
-
-  renderDrive();
+  Car.step(dt);
+  renderCluster();
   requestAnimationFrame(tick);
 }
 
-function isAccelKey(e) {
-  return e.code === "KeyW" || e.code === "ArrowUp";
-}
-
-window.addEventListener("keydown", (e) => {
-  if (!isAccelKey(e) || e.repeat) return;
-  e.preventDefault();
-  car.throttle = true;
-});
-
-window.addEventListener("keyup", (e) => {
-  if (!isAccelKey(e)) return;
-  car.throttle = false;
-});
-
-window.addEventListener("blur", () => {
-  car.throttle = false;
-});
-
-window.addEventListener("resize", fitCluster);
+window.addEventListener("resize", fitCockpit);
 document.addEventListener("DOMContentLoaded", () => {
   drawSpeedTicks();
   drawFuelAndCoolant();
   drawConsTicks();
   drawMap();
-  fitCluster();
-  renderDrive();
+  fitCockpit();
+  Car.bindKeys();
+  document.getElementById("gear")?.addEventListener("click", () => {
+    const g = ["P", "R", "N", "D"];
+    Car.setGear(g[(g.indexOf(Car.gear) + 1) % 4]);
+  });
+  document.getElementById("epb")?.addEventListener("click", () => Car.toggle("epb"));
+  document.getElementById("seatbelt")?.addEventListener("click", () => Car.toggle("seatbelt"));
+  document.querySelector(".gauge-left")?.addEventListener("click", () => {
+    Car.widgets.left = (Car.widgets.left + 1) % 3;
+  });
+  document.querySelector(".gauge-right")?.addEventListener("click", (e) => {
+    if (e.target.closest(".tire")) return;
+    Car.widgets.right = (Car.widgets.right + 1) % 3;
+  });
+  document.querySelector(".center-stack")?.addEventListener("click", (e) => {
+    if (e.target.closest(".limit-sign")) {
+      Car.limit = Car.limit ? null : 50;
+      return;
+    }
+    Car.widgets.center = (Car.widgets.center + 1) % 3;
+  });
+  renderCluster();
   requestAnimationFrame(tick);
 });
